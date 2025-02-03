@@ -21,12 +21,13 @@ class AddSpatialLayerInfo(IsAdministratorMixin, View):
 
     def get(self, request, *args, **kwargs):
 
-        auth_modes = RequestAuthentication.objects.all().only('id', 'name','username',  'created_at')
-
+        auth_modes = RequestAuthentication.objects.all().only('id', 'name','username', 'created_at')
+        has_error = request.GET.get('error') == 'True',
         context = {
             'title': 'Add Spatial Layer Information',
             'auth_modes': auth_modes,
             'success': request.GET.get('success') == 'True',
+            'error_message': 'An error occurred' if has_error else None,
             'has_permission': IsInOfficersGroup().has_permission(request, self),
         }
 
@@ -36,6 +37,10 @@ class AddSpatialLayerInfo(IsAdministratorMixin, View):
         urls = request.POST.getlist('layer_url')
         layer_name = request.POST.getlist('layer_name')
         auth_mode = request.POST.get('auth_mode')
+
+        if not IsInOfficersGroup(request):
+            return redirect('/?error=True')
+
         authentication = None
         if auth_mode != '':
             authentication = RequestAuthentication.objects.filter(pk=auth_mode).first()

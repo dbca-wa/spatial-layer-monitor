@@ -27,14 +27,14 @@ class SpatialMonitorHistoryInline(admin.TabularInline):
 class SpatialMonitorAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'kmi_layer_name', 'url', 'last_checked', 'created_at', 'authentication')
     list_filter = ('last_checked', 'created_at', 'authentication')
-    search_fields = ('name', 'url')
+    search_fields = ('name', 'kmi_layer_name', 'url')
     inlines = [SpatialMonitorHistoryInline]
 
 @admin.register(SpatialMonitorHistory)
 class SpatialMonitorHistoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'layer', 'hash', 'created_at', 'synced_at')
     list_filter = ('created_at', 'synced_at')
-    search_fields = ('layer', 'hash')
+    search_fields = ('layer__name','layer__kmi_layer_name' , 'hash', 'layer__url')
     ordering = ('-id',)
 
 

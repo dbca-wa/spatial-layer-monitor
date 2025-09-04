@@ -104,10 +104,10 @@ def publish_layer_update(history_layer: SpatialMonitorHistory):
             gs = GeoServer.objects.filter(geoserver_group=geoserver_group,enabled=True)
             for g in gs:
                 auhentication = HTTPBasicAuth(g.username, g.password)
-                url = endpoint + '/geoserver/gwc/rest/masstruncate'
+                url = g.endpoint_url + '/geoserver/gwc/rest/masstruncate'
                 data = f"<truncateLayer><layerName>{history_layer.layer.kmi_layer_name}</layerName></truncateLayer>"
 
-                response = requests.post(url=g.endpoint_url, auth=auhentication, data=data, headers={'content-type': 'text/xml'})
+                response = requests.post(url=url, auth=auhentication, data=data, headers={'content-type': 'text/xml'})
                 if response.status_code == 200:
                     history_layer.sync()
                     gs_response = "Success: " + g.endpoint_url+" -> " + str(response.status_code)

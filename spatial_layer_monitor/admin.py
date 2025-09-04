@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.db.models import OuterRef, Subquery
-from .models import SpatialMonitor, SpatialMonitorHistory, SpatialQueue, RequestAuthentication
+from .models import SpatialMonitor, SpatialMonitorHistory, SpatialQueue, RequestAuthentication, GeoServer
 
 
 class SpatialMonitorHistoryInline(admin.TabularInline):
@@ -49,6 +49,9 @@ class RequestAuthenticationAdmin(admin.ModelAdmin):
     def password(self, obj):
         return '*** CLASSIFIED *** {}'.format(obj.password)
 
-    
+@admin.register(GeoServer)
+class GeoServerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'geoserver_group', 'endpoint_url','enabled','created_at')
+   
 
 admin.site.register(SpatialQueue)

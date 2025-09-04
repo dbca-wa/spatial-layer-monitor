@@ -1,5 +1,5 @@
 import uuid
-from .models  import SpatialMonitorHistory, SpatialMonitor
+from .models  import SpatialMonitorHistory, SpatialMonitor,GeoServer
 
 import requests
 import requests.cookies
@@ -88,6 +88,8 @@ def publish_layer_update(history_layer: SpatialMonitorHistory):
     username = settings.SPATIAL_UPDATE_USERNAME
     password = settings.SPATIAL_UPDATE_PASSWORD
     logger.info(f"Publish Layer Update: {history_layer.layer}")
+    gs_response = ""
+    gs_response_boolean = True
     try:
         if not endpoint:
             logger.error("Update Endpoint not set")
@@ -97,18 +99,28 @@ def publish_layer_update(history_layer: SpatialMonitorHistory):
             logger.error(f"Layer {history_layer.layer.id} doesn't have a layer name set")
             return False, f"Layer {history_layer.layer.id} doesn't have a layer name set"
 
-        auhentication = HTTPBasicAuth(username, password)
-        url = endpoint + '/geoserver/gwc/rest/masstruncate'
-        data = f"<truncateLayer><layerName>{history_layer.layer.kmi_layer_name}</layerName></truncateLayer>"
+        geoserver_group = history_layer.layer.geoserver_group
+        if geoserver_group:
+            gs = GeoServer.objects.filter(geoserver_group=geoserver_group,enabled=True)
+            for g in gs:
+                auhentication = HTTPBasicAuth(g.username, g.password)
+                url = endpoint + '/geoserver/gwc/rest/masstruncate'
+                data = f"<truncateLayer><layerName>{history_layer.layer.kmi_layer_name}</layerName></truncateLayer>"
 
-        response = requests.post(url=url, auth=auhentication, data=data, 
-                                 headers={'content-type': 'text/xml'})
-        if response.status_code == 200:
-            history_layer.sync()
-            return True, f"Success: {response.status_code}"
+                response = requests.post(url=g.url, auth=auhentication, data=data, headers={'content-type': 'text/xml'})
+                if response.status_code == 200:
+                    history_layer.sync()
+                    gs_response = "Success: " + g.url+" -> " + response.status_code
+                    # return True, f"Success: {response.status_code}"
+                else:
+                    logger.error(response.content)
+                    gs_response = "Error: " + g.url+" -> " + response.status_code
+                    gs_response_boolean = False
+                    # return False, f"Error: {response.status_code}"
+            return gs_response_boolean, gs_response
         else:
-            logger.error(response.content)
-            return False, f"Error: {response.status_code}"
+            logger.error(f"Layer {history_layer.layer.id} has an invalid geoserver group")
+            return False, f"Layer {history_layer.layer.id} has an invalid geoserver group"        
     except Exception as e:
         logger.error(e)
         return False, f"Error: {e}"

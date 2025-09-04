@@ -26,8 +26,14 @@ class RequestAuthentication(models.Model):
 
 
 class SpatialMonitor(models.Model):
+
+    GEOSERVER_GROUP = ((0,'KMI'),
+                    (1,'KB'),
+                    )
+
     url = models.URLField(max_length=1000)
     name = models.CharField(max_length=200)
+    geoserver_group = models.IntegerField(choices=GEOSERVER_GROUP,default=0)
     kmi_layer_name = models.CharField(max_length=200, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     last_updated = models.DateTimeField(blank=True, null=True)
@@ -78,3 +84,18 @@ class SpatialQueue(models.Model):
     def __str__(self):
         return f'{self.layer.layer.name} - {self.created_at}'
 
+
+
+class GeoServer(models.Model):
+    """Model for an Geoserver Pool."""
+    GEOSERVER_GROUP = ((0,'KMI'),
+                    (1,'KB'),
+                    )
+
+    name = models.CharField(max_length=200, null=True)
+    geoserver_group = models.IntegerField(choices=GEOSERVER_GROUP,default=0)
+    endpoint_url = models.CharField(max_length=500)    
+    username = models.TextField()
+    password = models.TextField()
+    enabled = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -52,6 +52,6 @@ class RequestAuthenticationAdmin(admin.ModelAdmin):
 @admin.register(GeoServer)
 class GeoServerAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'geoserver_group', 'endpoint_url','enabled','created_at')
-   
+    list_filter = ('geoserver_group','enabled',)
 
 admin.site.register(SpatialQueue)

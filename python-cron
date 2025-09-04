@@ -2,3 +2,4 @@
 
 */2 * * * * python3 /app/manage.py process_spatial_layers_changes_command >> /app/logs/process_spatial_layers_changes_command.log 2>&1
 */10 * * * * python3 /app/manage.py sync_queue_changes_command >> /app/logs/sync_queue_changes_command.log 2>&1
+1 0 * * *  /bin/log_rotate.sh  >> /app/logs/log_rotate.log 2>&1

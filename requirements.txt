@@ -8,7 +8,7 @@ pyinotify-elephant-fork==0.0.1
 psycopg2==2.9.10
 
 # Django Application Requirements
-django==5.2.4
+Django~=5.2.0
 gevent==25.4.2
 django-extensions>=3.2.3
 djangorestframework>=3.14.0

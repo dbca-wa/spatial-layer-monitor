@@ -8,7 +8,7 @@ from requests.auth import HTTPBasicAuth
 import logging
 import hashlib
 import io
-
+import time
 from django.core.files.base import ContentFile
 from django.conf import settings
 
@@ -22,43 +22,96 @@ def run_check_all_layers():
         check_layer(layer)
 
 
+MAX_RETRIES = 10
+RETRY_DELAY_SECONDS = 0.5 
+
 
 def check_layer(layer: SpatialMonitor):
     url = layer.url
+    auth = layer.get_authentication()
+
     latest_hash_history = layer.get_latest_hash()
     current_hash = latest_hash_history.hash if latest_hash_history else None
 
-    new_hash, image, error = fetch_current_image_hash(url, auth=layer.get_authentication())
+    # Attempt to fetch with retries
+    errors = []
+    new_hash = None
+    image = None
 
-    if error:
-        layer.description = error
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            fetched_hash, fetched_image, error = fetch_current_image_hash(url, auth=auth)
+        except Exception as ex:
+            error = f"Exception on attempt {attempt}: {ex}"
+
+        if error:
+            errors.append(str(error))
+            logger.warning(
+                "Attempt %d/%d failed for URL %s: %s",
+                attempt, MAX_RETRIES, url, error
+            )
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_DELAY_SECONDS) 
+            continue
+        else:
+            new_hash = fetched_hash
+            image = fetched_image
+            break  # success
+
+    attempts_failed = len(errors)
+
+    # === Case A: Final failure after retries ===
+    if not new_hash:
+        failure_history = SpatialMonitorHistory.objects.create(
+            layer=layer,
+            hash=None,
+            retry_failure_count=attempts_failed,
+            error_message="\n".join(errors) if errors else None,
+        )
+        layer.last_checked = failure_history.created_at
         layer.save()
-        logger.error('Error fetching new hash from url %s Error: %s', url, error)
-        return 
-    
-    if new_hash and new_hash != current_hash:
-        new_layer_data = SpatialMonitorHistory.objects.create(layer=layer, hash=new_hash)
+
+        logger.error(
+            "Failed to fetch new hash from URL %s after %d attempts. "
+            "Last error: %s",
+            url, attempts_failed,
+            (errors[-1] if errors else "Unknown error")
+        )
+        return
+
+    # === Case B: Success — we have a hash ===
+    if new_hash != current_hash:
+        # New hash — record new SpatialMonitorHistory
+        new_layer_data = SpatialMonitorHistory.objects.create(
+            layer=layer,
+            hash=new_hash,
+            retry_failure_count=attempts_failed,
+            error_message="\n".join(errors) if errors else None,
+        )
         layer.last_checked = new_layer_data.created_at
         layer.save()
+
         if image:
-            new_layer_data.image.save(f'{layer.name}_{new_layer_data.created_at}.png', ContentFile(image.getvalue()))
+            # Persist image 
+            new_layer_data.image.save(
+                f"{layer.name}_{new_layer_data.created_at:%Y%m%d%H%M%S}.png",
+                ContentFile(image.getvalue())
+            )
 
         if current_hash:
             success, message = publish_layer_update(new_layer_data)
             if not success:
-                logger.error('Error updating layer %s', message)
+                logger.error("Error updating layer: %s", message)
 
-    elif new_hash:
-        logger.info('New hash is the same as the last hash')
+    else:
+        # Same hash — keep existing behavior
+        logger.info("New hash is the same as the last hash for layer '%s'", layer.name)
+
+        # If the last hash history exists and hasn't been synced, try syncing now
         if latest_hash_history and not latest_hash_history.synced_at:
             success, message = publish_layer_update(latest_hash_history)
             if not success:
-                logger.error('Error updating layer %s', message)
-    else:
-        layer.description = error
-        layer.save()
-        logger.error('Error fetching new hash from url %s', url)
-
+                logger.error("Error updating layer: %s", message)
 
 
 

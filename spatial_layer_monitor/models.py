@@ -56,10 +56,12 @@ class SpatialMonitor(models.Model):
 
 class SpatialMonitorHistory(models.Model):
     layer = models.ForeignKey(SpatialMonitor, on_delete=models.CASCADE, related_name='hashes')
-    hash = models.CharField(max_length=500)
+    hash = models.CharField(max_length=500, null=True, blank=True)
     image = models.ImageField(upload_to=to_history_images, storage=upload_storage,blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     synced_at =  models.DateTimeField(blank=True, null=True)
+    retry_failure_count = models.IntegerField(default=0)
+    error_message = models.TextField(blank=True, null=True)
 
     @property
     def image_tag(self):

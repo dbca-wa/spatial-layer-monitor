@@ -116,12 +116,16 @@ def publish_layer_update(history_layer: SpatialMonitorHistory):
     gs_response_boolean = True
     try:
         if not endpoint:
-            logger.error("Update Endpoint not set")
-            return False, "Update Endpoint not set"
+            msg = "Update Endpoint not set"
+            logger.error(msg)
+            _save_purge_result(history_layer, False, msg)
+            return False, msg
 
         if not history_layer.layer.kmi_layer_name:
-            logger.error(f"Layer {history_layer.layer.id} doesn't have a layer name set")
-            return False, f"Layer {history_layer.layer.id} doesn't have a layer name set"
+            msg = f"Layer {history_layer.layer.id} doesn't have a layer name set"
+            logger.error(msg)
+            _save_purge_result(history_layer, False, msg)
+            return False, msg
 
         geoserver_group = history_layer.layer.geoserver_group
         if geoserver_group >= 0:
@@ -131,20 +135,32 @@ def publish_layer_update(history_layer: SpatialMonitorHistory):
                 url = g.endpoint_url + '/geoserver/gwc/rest/masstruncate'
                 data = f"<truncateLayer><layerName>{history_layer.layer.kmi_layer_name}</layerName></truncateLayer>"
 
-                response = requests.post(url=url, auth=auhentication, data=data, headers={'content-type': 'text/xml'})
-                if response.status_code == 200:
-                    history_layer.sync()
-                    gs_response = "Success: " + g.endpoint_url+" -> " + str(response.status_code)
-                    # return True, f"Success: {response.status_code}"
-                else:
-                    logger.error(response.content)
-                    gs_response = "Error: " + g.endpoint_url+" -> " + str(response.status_code)
+                try:
+                    response = requests.post(url=url, auth=auhentication, data=data, headers={'content-type': 'text/xml'})
+                    if response.status_code == 200:
+                        msg = f"Success: {g.endpoint_url} -> {response.status_code}"
+                        _save_purge_result(history_layer, True, msg)
+                        gs_response = msg
+                    else:
+                        logger.error(response.content)
+                        msg = f"Error: {g.endpoint_url} -> {response.status_code}"
+                        _save_purge_result(history_layer, False, msg)
+                        gs_response = msg
+                        gs_response_boolean = False
+                except Exception as e:
+                    logger.error(e)
+                    msg = f"Exception: {e}"
+                    _save_purge_result(history_layer, False, msg)
+                    gs_response = msg
                     gs_response_boolean = False
-                    # return False, f"Error: {response.status_code}"
             return gs_response_boolean, gs_response
         else:
-            logger.error(f"Layer {history_layer.layer.id} has an invalid geoserver group")
-            return False, f"Layer {history_layer.layer.id} has an invalid geoserver group"        
+            msg = f"Layer {history_layer.layer.id} has an invalid geoserver group"
+            logger.error(msg)
+            _save_purge_result(history_layer, False, msg)
+            return False, msg        
     except Exception as e:
         logger.error(e)
-        return False, f"Error: {e}"
+        msg = f"Error: {e}"
+        _save_purge_result(history_layer, False, msg)
+        return False, msg

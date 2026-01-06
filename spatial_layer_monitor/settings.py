@@ -294,4 +294,12 @@ SPATIAL_UPDATE_ENDPOINT = decouple.config("SPATIAL_UPDATE_ENDPOINT", default=Non
 SPATIAL_UPDATE_USERNAME = decouple.config("SPATIAL_UPDATE_USERNAME", default=None)
 SPATIAL_UPDATE_PASSWORD = decouple.config("SPATIAL_UPDATE_PASSWORD", default=None)
 
+# Settings for purge retry behavior and processing lock
+# Maximum number of retry attempts for a purge before giving up
+SPATIAL_PURGE_RETRY_LIMIT = decouple.config("SPATIAL_PURGE_RETRY_LIMIT", default=3, cast=int)
+# Fixed interval (in seconds) between retry attempts
+SPATIAL_PURGE_RETRY_INTERVAL_SECONDS = decouple.config("SPATIAL_PURGE_RETRY_INTERVAL_SECONDS", default=300, cast=int)
+# Lock timeout (in seconds) after which a stale processing lock can be considered expired
+SPATIAL_PURGE_LOCK_TIMEOUT_SECONDS = decouple.config("SPATIAL_PURGE_LOCK_TIMEOUT_SECONDS", default=600, cast=int)
+
 FILE_UPLOAD_PERMISSIONS = None

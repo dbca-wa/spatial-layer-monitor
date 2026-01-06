@@ -54,6 +54,10 @@ class SpatialMonitor(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "spatial layer monitor"
+        verbose_name_plural = "spatial layer monitors"
+
 class SpatialMonitorHistory(models.Model):
     layer = models.ForeignKey(SpatialMonitor, on_delete=models.CASCADE, related_name='hashes')
     hash = models.CharField(max_length=500)
@@ -76,6 +80,9 @@ class SpatialMonitorHistory(models.Model):
     def __str__(self):
         return f'{self.layer.name} - {self.hash} - {self.created_at}'
 
+    class Meta:
+        verbose_name = "spatial layer monitor history"
+        verbose_name_plural = "spatial layer monitor histories"
 
 class SpatialQueue(models.Model):
     layer = models.ForeignKey(SpatialMonitorHistory, on_delete=models.CASCADE, related_name='queue_item')

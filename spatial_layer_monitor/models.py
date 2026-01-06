@@ -64,6 +64,14 @@ class SpatialMonitorHistory(models.Model):
     image = models.ImageField(upload_to=to_history_images, storage=upload_storage,blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     synced_at =  models.DateTimeField(blank=True, null=True)
+    purge_status = models.TextField(blank=True, null=True)
+    purge_retry_count = models.PositiveIntegerField(default=0)
+    last_purge_attempt_at = models.DateTimeField(blank=True, null=True)
+    # Timestamp set when a background worker has acquired a processing lock for this record.
+    # This prevents concurrent processing by other workers. If this timestamp is older than
+    # SPATIAL_PURGE_LOCK_TIMEOUT_SECONDS (configured in settings), it is considered expired
+    # and the lock may be re-acquired by another worker.
+    purge_processing_at = models.DateTimeField(blank=True, null=True)
 
     @property
     def image_tag(self):

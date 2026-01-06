@@ -11,9 +11,33 @@ import io
 
 from django.core.files.base import ContentFile
 from django.conf import settings
+from django.utils import timezone
 
 
 logger = logging.getLogger(__name__)
+
+# Maximum length for storing purge status messages to avoid saving excessively long or sensitive content
+MAX_PURGE_STATUS_LENGTH = 1024
+
+def _save_purge_result(history_layer, success: bool, message: str):
+    """Save purge attempt metadata and status on the history layer.
+
+    On success reset retry count and call `sync()` to set synced_at and update parent layer.
+    On failure increment retry count and save an error message.
+    Messages are truncated to `MAX_PURGE_STATUS_LENGTH`.
+    """
+    now = timezone.now()
+    history_layer.last_purge_attempt_at = now
+    safe_msg = str(message)[:MAX_PURGE_STATUS_LENGTH]
+    if success:
+        history_layer.purge_retry_count = 0
+        history_layer.purge_status = f"Success: {safe_msg}"
+        # sync() updates synced_at and layer.last_updated and persists the model
+        history_layer.sync()
+    else:
+        history_layer.purge_retry_count = (history_layer.purge_retry_count or 0) + 1
+        history_layer.purge_status = f"Error: {safe_msg}"
+        history_layer.save()
 
 
 def run_check_all_layers():

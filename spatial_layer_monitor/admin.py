@@ -6,9 +6,9 @@ from .models import SpatialMonitor, SpatialMonitorHistory, SpatialQueue, Request
 class SpatialMonitorHistoryInline(admin.TabularInline):
     model = SpatialMonitorHistory
     extra = 0
-    fields = ('hash', 'created_at', 'synced_at', 'image_tag',)
+    fields = ('hash', 'created_at', 'synced_at', 'image_tag', 'purge_retry_count', 'purge_status', 'last_purge_attempt_at')
     ordering = ('-id',)
-    readonly_fields = ('hash', 'created_at', 'synced_at', 'image_tag',)
+    readonly_fields = ('hash', 'created_at', 'synced_at', 'image_tag', 'purge_retry_count', 'purge_status', 'last_purge_attempt_at')
 
     def get_queryset(self, request):
         """
@@ -32,10 +32,11 @@ class SpatialMonitorAdmin(admin.ModelAdmin):
 
 @admin.register(SpatialMonitorHistory)
 class SpatialMonitorHistoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'layer', 'hash', 'created_at', 'synced_at')
+    list_display = ('id', 'layer', 'hash', 'created_at', 'synced_at', 'purge_retry_count', 'purge_status', 'last_purge_attempt_at', 'purge_processing_at')
     list_filter = ('created_at', 'synced_at')
     search_fields = ('layer__name','layer__kmi_layer_name' , 'hash', 'layer__url')
     ordering = ('-id',)
+    readonly_fields = ('purge_status', 'purge_retry_count', 'last_purge_attempt_at', 'purge_processing_at')
 
 
 @admin.register(RequestAuthentication)

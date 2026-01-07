@@ -46,7 +46,6 @@ def run_check_all_layers():
         check_layer(layer)
 
 
-
 def check_layer(layer: SpatialMonitor):
     url = layer.url
     latest_hash_history = layer.get_latest_hash()
@@ -61,29 +60,21 @@ def check_layer(layer: SpatialMonitor):
         return 
     
     if new_hash and new_hash != current_hash:
+        # Create a new history record for the detected change
         new_layer_data = SpatialMonitorHistory.objects.create(layer=layer, hash=new_hash)
         layer.last_checked = new_layer_data.created_at
         layer.save()
         if image:
             new_layer_data.image.save(f'{layer.name}_{new_layer_data.created_at}.png', ContentFile(image.getvalue()))
-
-        if current_hash:
-            success, message = publish_layer_update(new_layer_data)
-            if not success:
-                logger.error('Error updating layer %s', message)
-
+        # Note: Purge operations are handled exclusively by process_purge_retries_command
     elif new_hash:
+        # Hash is the same as the last one, no action needed
         logger.info('New hash is the same as the last hash')
-        if latest_hash_history and not latest_hash_history.synced_at:
-            success, message = publish_layer_update(latest_hash_history)
-            if not success:
-                logger.error('Error updating layer %s', message)
     else:
+        # Error occurred while fetching hash
         layer.description = error
         layer.save()
         logger.error('Error fetching new hash from url %s', url)
-
-
 
 
 def fetch_current_image_hash(url: str, auth: tuple = None):

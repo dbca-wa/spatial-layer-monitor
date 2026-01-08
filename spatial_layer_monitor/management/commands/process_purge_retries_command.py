@@ -31,15 +31,18 @@ class Command(BaseCommand):
             if history.purge_processing_at and (now - history.purge_processing_at) < lock_timeout:
                 logger.info(f"Skipping id={history.pk}: locked by another process (lock age: {(now - history.purge_processing_at).total_seconds()}s)")
                 continue
+
             # Check interval
             if history.last_purge_attempt_at and (now - history.last_purge_attempt_at) < retry_interval:
                 logger.info(f"Skipping id={history.pk}: retry interval not reached (last attempt: {history.last_purge_attempt_at})")
                 continue
 
-            # Try to acquire lock atomically
+            # Try to acquire lock atomically.
+            # We filter by history.purge_processing_at to ensure the lock hasn't been changed 
+            # by another process (Optimistic Locking). This also allows re-acquiring expired locks.
             updated = SpatialMonitorHistory.objects.filter(
                 pk=history.pk,
-                purge_processing_at__isnull=True
+                purge_processing_at=history.purge_processing_at
             ).update(purge_processing_at=now)
             if updated != 1:
                 logger.info(f"Skipping id={history.pk}: failed to acquire lock")

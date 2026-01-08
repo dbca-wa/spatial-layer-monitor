@@ -99,18 +99,18 @@ def get_image_hash(image):
 
 
 def publish_layer_update(history_layer: SpatialMonitorHistory):
-    endpoint = settings.SPATIAL_UPDATE_ENDPOINT
-    username = settings.SPATIAL_UPDATE_USERNAME
-    password = settings.SPATIAL_UPDATE_PASSWORD
+    # endpoint = settings.SPATIAL_UPDATE_ENDPOINT
+    # username = settings.SPATIAL_UPDATE_USERNAME
+    # password = settings.SPATIAL_UPDATE_PASSWORD
     logger.info(f"Publish Layer Update: {history_layer.layer}")
     gs_response = ""
     gs_response_boolean = True
     try:
-        if not endpoint:
-            msg = "Update Endpoint not set"
-            logger.error(msg)
-            _save_purge_result(history_layer, False, msg)
-            return False, msg
+        # if not endpoint:
+        #     msg = "Update Endpoint not set"
+        #     logger.error(msg)
+        #     _save_purge_result(history_layer, False, msg)
+        #     return False, msg
 
         if not history_layer.layer.kmi_layer_name:
             msg = f"Layer {history_layer.layer.id} doesn't have a layer name set"

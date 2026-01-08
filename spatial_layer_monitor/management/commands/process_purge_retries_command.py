@@ -24,6 +24,7 @@ class Command(BaseCommand):
             purge_retry_count__lt=retry_limit,
             synced_at__isnull=True  # Only process records that haven't been synced yet
         )
+        logger.info(f"Found {candidates.count()} candidates for purge retry")
 
         for history in candidates:
             # Check lock

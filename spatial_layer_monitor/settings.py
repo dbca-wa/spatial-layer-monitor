@@ -267,7 +267,9 @@ GROUP_OFFICERS = 'Officers'
 #CRON_SCANNER_CLASS = "govapp.apps.catalogue.cron.ScannerCronJob"
 
 CRON_CLASSES = [
-    'appmonitor_client.cron.CronJobAppMonitorClient'
+    'appmonitor_client.cron.CronJobAppMonitorClient',
+    'spatial_layer_monitor.cron.ProcessSpatialLayersChangesCronJob',
+    'spatial_layer_monitor.cron.ProcessPurgeRetriesCronJob',
 ]
 MANAGEMENT_COMMANDS_PAGE_ENABLED = decouple.config('MANAGEMENT_COMMANDS_PAGE_ENABLED', default=False)
 

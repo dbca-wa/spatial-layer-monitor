@@ -4,6 +4,7 @@ from django.db import models
 from django.conf import settings
 from django_cryptography.fields import encrypt
 from django.utils.html import format_html
+from django.utils import timezone
 from datetime import datetime
 import uuid
 
@@ -80,8 +81,8 @@ class SpatialMonitorHistory(models.Model):
         return format_html('<a href="%s" target="_blank"> <img src="%s" width="150" height="150" /></a>' % (self.image.url, self.image.url))
 
     def sync(self):
-        self.synced_at = datetime.now()
-        self.layer.last_updated = datetime.now()
+        self.synced_at = timezone.now()
+        self.layer.last_updated = timezone.now()
         self.layer.save()
         self.save()
 

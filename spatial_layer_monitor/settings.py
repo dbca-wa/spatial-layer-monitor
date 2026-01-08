@@ -273,6 +273,10 @@ CRON_CLASSES = [
 ]
 MANAGEMENT_COMMANDS_PAGE_ENABLED = decouple.config('MANAGEMENT_COMMANDS_PAGE_ENABLED', default=False)
 
+# Cron Job Intervals (in minutes)
+CRON_INTERVAL_CHECK_LAYERS = decouple.config('CRON_INTERVAL_CHECK_LAYERS', default=2, cast=int)
+CRON_INTERVAL_PURGE_RETRIES = decouple.config('CRON_INTERVAL_PURGE_RETRIES', default=10, cast=int)
+
 # Temporary Fix for ARM Architecture
 if platform.machine() == "arm64":
     GDAL_LIBRARY_PATH = "/opt/homebrew/opt/gdal/lib/libgdal.dylib"

@@ -100,7 +100,7 @@ def get_image_hash(image):
 
 
 def publish_layer_update(history_layer: SpatialMonitorHistory):
-    logger.info(f"Publish Layer Update: {history_layer.layer}")
+    logger.info(f"Starting Publish Layer Update for layer '{history_layer.layer.name}' (ID: {history_layer.layer.id})")
     gs_response = ""
     gs_response_boolean = True
     try:
@@ -113,29 +113,36 @@ def publish_layer_update(history_layer: SpatialMonitorHistory):
         geoserver_group = history_layer.layer.geoserver_group
         if geoserver_group >= 0:
             gs = GeoServer.objects.filter(geoserver_group=geoserver_group,enabled=True)
+            if not gs.exists():
+                logger.warning(f"No enabled GeoServers found for group {geoserver_group} (Layer: {history_layer.layer.name})")
+
             for g in gs:
                 auhentication = HTTPBasicAuth(g.username, g.password)
                 url = g.endpoint_url + '/geoserver/gwc/rest/masstruncate'
                 data = f"<truncateLayer><layerName>{history_layer.layer.kmi_layer_name}</layerName></truncateLayer>"
 
+                logger.info(f"Sending purge request to GeoServer: {url}")
                 try:
                     response = requests.post(url=url, auth=auhentication, data=data, headers={'content-type': 'text/xml'})
                     if response.status_code == 200:
                         msg = f"Success: {g.endpoint_url} -> {response.status_code}"
+                        logger.info(msg)
                         _save_purge_result(history_layer, True, msg)
                         gs_response = msg
                     else:
-                        logger.error(response.content)
+                        logger.error(f"Failed purge request to {g.endpoint_url}. Status: {response.status_code}. Content: {response.content}")
                         msg = f"Error: {g.endpoint_url} -> {response.status_code}"
                         _save_purge_result(history_layer, False, msg)
                         gs_response = msg
                         gs_response_boolean = False
                 except Exception as e:
-                    logger.error(e)
+                    logger.error(f"Exception during purge request to {g.endpoint_url}: {e}")
                     msg = f"Exception: {e}"
                     _save_purge_result(history_layer, False, msg)
                     gs_response = msg
                     gs_response_boolean = False
+            
+            logger.info(f"Completed Publish Layer Update for layer '{history_layer.layer.name}'. Final Success Status: {gs_response_boolean}")
             return gs_response_boolean, gs_response
         else:
             msg = f"Layer {history_layer.layer.id} has an invalid geoserver group"

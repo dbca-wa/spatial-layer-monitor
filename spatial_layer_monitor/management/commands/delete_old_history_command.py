@@ -61,7 +61,9 @@ class Command(BaseCommand):
         else:
             self.stdout.write(f"Deleting {count} records and associated images...")
             deleted_count = 0
-            for record in old_records:
+            
+            # Use .iterator() to process large datasets without loading everything into memory
+            for record in old_records.iterator():
                 if record.image:
                     try:
                         # Deleting the field also deletes the file from storage
@@ -73,6 +75,13 @@ class Command(BaseCommand):
                     record_id = record.id
                     record.delete()
                     deleted_count += 1
+                    
+                    # Log progress every 100 records
+                    if deleted_count % 100 == 0:
+                        progress_msg = f"Progress: Deleted {deleted_count}/{count} records..."
+                        self.stdout.write(progress_msg)
+                        logger.info(f"Management Command: {progress_msg}")
+                        
                 except Exception as e:
                     logger.error(f"Management Command Error: Failed to delete history record {record_id}: {e}")
             

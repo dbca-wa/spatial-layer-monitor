@@ -44,6 +44,23 @@
             "autoReload": {
                 "enable": true
             }
+        },
+        {
+            "name": "Django: delete_old_history",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "python": "${workspaceFolder}/venv/bin/python",
+            "args": [
+                "delete_old_history_command",
+                "--days",
+                "90",
+                "--dry-run"
+            ],
+            "django": true,
+            "autoReload": {
+                "enable": true
+            }
         }
     ]
 }

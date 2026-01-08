@@ -267,9 +267,15 @@ GROUP_OFFICERS = 'Officers'
 #CRON_SCANNER_CLASS = "govapp.apps.catalogue.cron.ScannerCronJob"
 
 CRON_CLASSES = [
-    'appmonitor_client.cron.CronJobAppMonitorClient'
+    'appmonitor_client.cron.CronJobAppMonitorClient',
+    'spatial_layer_monitor.cron.ProcessSpatialLayersChangesCronJob',
+    'spatial_layer_monitor.cron.ProcessPurgeRetriesCronJob',
 ]
 MANAGEMENT_COMMANDS_PAGE_ENABLED = decouple.config('MANAGEMENT_COMMANDS_PAGE_ENABLED', default=False)
+
+# Cron Job Intervals (in minutes)
+CRON_INTERVAL_CHECK_LAYERS = decouple.config('CRON_INTERVAL_CHECK_LAYERS', default=2, cast=int)
+CRON_INTERVAL_PURGE_RETRIES = decouple.config('CRON_INTERVAL_PURGE_RETRIES', default=10, cast=int)
 
 # Temporary Fix for ARM Architecture
 if platform.machine() == "arm64":
@@ -289,9 +295,12 @@ RUNNING_DEVSERVER = len(sys.argv) > 1 and sys.argv[1] == "runserver"
 CSRF_TRUSTED_ORIGINS_STRING = decouple.config("CSRF_TRUSTED_ORIGINS", default='[]')
 CSRF_TRUSTED_ORIGINS = json.loads(str(CSRF_TRUSTED_ORIGINS_STRING))
 
-
-SPATIAL_UPDATE_ENDPOINT = decouple.config("SPATIAL_UPDATE_ENDPOINT", default=None)
-SPATIAL_UPDATE_USERNAME = decouple.config("SPATIAL_UPDATE_USERNAME", default=None)
-SPATIAL_UPDATE_PASSWORD = decouple.config("SPATIAL_UPDATE_PASSWORD", default=None)
+# Settings for purge retry behavior and processing lock
+# Maximum number of retry attempts for a purge before giving up
+SPATIAL_PURGE_RETRY_LIMIT = decouple.config("SPATIAL_PURGE_RETRY_LIMIT", default=3, cast=int)
+# Fixed interval (in seconds) between retry attempts
+SPATIAL_PURGE_RETRY_INTERVAL_SECONDS = decouple.config("SPATIAL_PURGE_RETRY_INTERVAL_SECONDS", default=300, cast=int)
+# Lock timeout (in seconds) after which a stale processing lock can be considered expired
+SPATIAL_PURGE_LOCK_TIMEOUT_SECONDS = decouple.config("SPATIAL_PURGE_LOCK_TIMEOUT_SECONDS", default=600, cast=int)
 
 FILE_UPLOAD_PERMISSIONS = None

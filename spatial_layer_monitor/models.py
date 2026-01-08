@@ -4,6 +4,7 @@ from django.db import models
 from django.conf import settings
 from django_cryptography.fields import encrypt
 from django.utils.html import format_html
+from django.utils import timezone
 from datetime import datetime
 import uuid
 
@@ -54,12 +55,24 @@ class SpatialMonitor(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "spatial layer monitor"
+        verbose_name_plural = "spatial layer monitors"
+
 class SpatialMonitorHistory(models.Model):
     layer = models.ForeignKey(SpatialMonitor, on_delete=models.CASCADE, related_name='hashes')
     hash = models.CharField(max_length=500)
     image = models.ImageField(upload_to=to_history_images, storage=upload_storage,blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     synced_at =  models.DateTimeField(blank=True, null=True)
+    purge_status = models.TextField(blank=True, null=True)
+    purge_retry_count = models.PositiveIntegerField(default=0)
+    last_purge_attempt_at = models.DateTimeField(blank=True, null=True)
+    # Timestamp set when a background worker has acquired a processing lock for this record.
+    # This prevents concurrent processing by other workers. If this timestamp is older than
+    # SPATIAL_PURGE_LOCK_TIMEOUT_SECONDS (configured in settings), it is considered expired
+    # and the lock may be re-acquired by another worker.
+    purge_processing_at = models.DateTimeField(blank=True, null=True)
 
     @property
     def image_tag(self):
@@ -68,14 +81,17 @@ class SpatialMonitorHistory(models.Model):
         return format_html('<a href="%s" target="_blank"> <img src="%s" width="150" height="150" /></a>' % (self.image.url, self.image.url))
 
     def sync(self):
-        self.synced_at = datetime.now()
-        self.layer.last_updated = datetime.now()
+        self.synced_at = timezone.now()
+        self.layer.last_updated = timezone.now()
         self.layer.save()
         self.save()
 
     def __str__(self):
         return f'{self.layer.name} - {self.hash} - {self.created_at}'
 
+    class Meta:
+        verbose_name = "spatial layer monitor history"
+        verbose_name_plural = "spatial layer monitor histories"
 
 class SpatialQueue(models.Model):
     layer = models.ForeignKey(SpatialMonitorHistory, on_delete=models.CASCADE, related_name='queue_item')

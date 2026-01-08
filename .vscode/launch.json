@@ -16,19 +16,34 @@
             ],
             "django": true,
             "autoStartBrowser": false,
-
         },
         {
-            "name": "Python Debugger: Task",
+            "name": "Django: process_spatial_layers_changes",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "python": "${workspaceFolder}/venv/bin/python",
             "args": [
                 "process_spatial_layers_changes_command"
-            ]
-            
-
+            ],
+            "django": true,
+            "autoReload": {
+                "enable": true
+            }
+        },
+        {
+            "name": "Django: process_purge_retries",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "python": "${workspaceFolder}/venv/bin/python",
+            "args": [
+                "process_purge_retries_command"
+            ],
+            "django": true,
+            "autoReload": {
+                "enable": true
+            }
         }
     ]
 }

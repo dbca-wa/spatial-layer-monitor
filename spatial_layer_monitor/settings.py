@@ -275,7 +275,7 @@ MANAGEMENT_COMMANDS_PAGE_ENABLED = decouple.config('MANAGEMENT_COMMANDS_PAGE_ENA
 
 # Cron Job Intervals (in minutes)
 CRON_INTERVAL_CHECK_LAYERS = decouple.config('CRON_INTERVAL_CHECK_LAYERS', default=2, cast=int)
-CRON_INTERVAL_PURGE_RETRIES = decouple.config('CRON_INTERVAL_PURGE_RETRIES', default=10, cast=int)
+CRON_INTERVAL_PURGE_RETRIES = decouple.config('CRON_INTERVAL_PURGE_RETRIES', default=2, cast=int)
 
 # Temporary Fix for ARM Architecture
 if platform.machine() == "arm64":
@@ -297,9 +297,9 @@ CSRF_TRUSTED_ORIGINS = json.loads(str(CSRF_TRUSTED_ORIGINS_STRING))
 
 # Settings for purge retry behavior and processing lock
 # Maximum number of retry attempts for a purge before giving up
-SPATIAL_PURGE_RETRY_LIMIT = decouple.config("SPATIAL_PURGE_RETRY_LIMIT", default=3, cast=int)
+SPATIAL_PURGE_RETRY_LIMIT = decouple.config("SPATIAL_PURGE_RETRY_LIMIT", default=10, cast=int)
 # Fixed interval (in seconds) between retry attempts
-SPATIAL_PURGE_RETRY_INTERVAL_SECONDS = decouple.config("SPATIAL_PURGE_RETRY_INTERVAL_SECONDS", default=300, cast=int)
+SPATIAL_PURGE_RETRY_INTERVAL_SECONDS = decouple.config("SPATIAL_PURGE_RETRY_INTERVAL_SECONDS", default=120, cast=int)
 # Lock timeout (in seconds) after which a stale processing lock can be considered expired
 SPATIAL_PURGE_LOCK_TIMEOUT_SECONDS = decouple.config("SPATIAL_PURGE_LOCK_TIMEOUT_SECONDS", default=600, cast=int)
 

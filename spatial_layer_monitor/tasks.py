@@ -56,11 +56,12 @@ def check_layer(layer: SpatialMonitor):
     if error:
         layer.description = error
         layer.save()
-        logger.error('Error fetching new hash from url %s Error: %s', url, error)
+        logger.error(f"Error fetching new hash for layer '{layer.name}' (ID: {layer.id}) from {url}. Error: {error}")
         return 
     
     if new_hash and new_hash != current_hash:
         # Create a new history record for the detected change
+        logger.info(f"New hash detected for layer '{layer.name}' (ID: {layer.id}): {new_hash}. Previous hash: {current_hash}")
         new_layer_data = SpatialMonitorHistory.objects.create(layer=layer, hash=new_hash)
         layer.last_checked = new_layer_data.created_at
         layer.save()
@@ -69,12 +70,12 @@ def check_layer(layer: SpatialMonitor):
         # Note: Purge operations are handled exclusively by process_purge_retries_command
     elif new_hash:
         # Hash is the same as the last one, no action needed
-        logger.info('New hash is the same as the last hash')
+        logger.info(f"Hash for layer '{layer.name}' (ID: {layer.id}) is unchanged: {new_hash}")
     else:
         # Error occurred while fetching hash
         layer.description = error
         layer.save()
-        logger.error('Error fetching new hash from url %s', url)
+        logger.error(f"Failed to fetch hash for layer '{layer.name}' (ID: {layer.id}) from {url}")
 
 
 def fetch_current_image_hash(url: str, auth: tuple = None):

@@ -15,9 +15,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now = timezone.now()
-        lock_timeout = timedelta(seconds=getattr(settings, "SPATIAL_PURGE_LOCK_TIMEOUT_SECONDS", 600))
-        retry_limit = getattr(settings, "SPATIAL_PURGE_RETRY_LIMIT", 3)
-        retry_interval = timedelta(seconds=getattr(settings, "SPATIAL_PURGE_RETRY_INTERVAL_SECONDS", 300))
+        lock_timeout = timedelta(seconds=settings.SPATIAL_PURGE_LOCK_TIMEOUT_SECONDS)
+        retry_limit = settings.SPATIAL_PURGE_RETRY_LIMIT
+        retry_interval = timedelta(seconds=settings.SPATIAL_PURGE_RETRY_INTERVAL_SECONDS)
 
         logger.info("Starting process_purge_retries_command")
         candidates = SpatialMonitorHistory.objects.filter(

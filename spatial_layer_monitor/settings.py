@@ -295,11 +295,6 @@ RUNNING_DEVSERVER = len(sys.argv) > 1 and sys.argv[1] == "runserver"
 CSRF_TRUSTED_ORIGINS_STRING = decouple.config("CSRF_TRUSTED_ORIGINS", default='[]')
 CSRF_TRUSTED_ORIGINS = json.loads(str(CSRF_TRUSTED_ORIGINS_STRING))
 
-
-SPATIAL_UPDATE_ENDPOINT = decouple.config("SPATIAL_UPDATE_ENDPOINT", default=None)
-SPATIAL_UPDATE_USERNAME = decouple.config("SPATIAL_UPDATE_USERNAME", default=None)
-SPATIAL_UPDATE_PASSWORD = decouple.config("SPATIAL_UPDATE_PASSWORD", default=None)
-
 # Settings for purge retry behavior and processing lock
 # Maximum number of retry attempts for a purge before giving up
 SPATIAL_PURGE_RETRY_LIMIT = decouple.config("SPATIAL_PURGE_RETRY_LIMIT", default=3, cast=int)

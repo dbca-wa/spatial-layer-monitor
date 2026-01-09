@@ -60,12 +60,23 @@ class SpatialMonitor(models.Model):
         verbose_name_plural = "spatial layer monitors"
 
 class SpatialMonitorHistory(models.Model):
+
+    class Status(models.IntegerChoices):
+        PENDING = 0, 'Pending'
+        PROCESSING = 1, 'Processing'
+        SUCCESS = 2, 'Success'
+        FAILED = 3, 'Failed'
+
     layer = models.ForeignKey(SpatialMonitor, on_delete=models.CASCADE, related_name='hashes')
     hash = models.CharField(max_length=500)
     image = models.ImageField(upload_to=to_history_images, storage=upload_storage,blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     synced_at =  models.DateTimeField(blank=True, null=True)
-    purge_status = models.TextField(blank=True, null=True)
+    
+    # New status and message fields
+    status = models.IntegerField(choices=Status.choices, default=Status.PENDING, db_index=True)
+    status_message = models.TextField(blank=True, null=True)
+
     purge_retry_count = models.PositiveIntegerField(default=0)
     last_purge_attempt_at = models.DateTimeField(blank=True, null=True)
     # Timestamp set when a background worker has acquired a processing lock for this record.
@@ -81,6 +92,7 @@ class SpatialMonitorHistory(models.Model):
         return format_html('<a href="%s" target="_blank"> <img src="%s" width="150" height="150" /></a>' % (self.image.url, self.image.url))
 
     def sync(self):
+        self.status = self.Status.SUCCESS
         self.synced_at = timezone.now()
         self.layer.last_updated = timezone.now()
         self.layer.save()

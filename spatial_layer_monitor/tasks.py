@@ -29,14 +29,18 @@ def _save_purge_result(history_layer, success: bool, message: str):
     now = timezone.now()
     history_layer.last_purge_attempt_at = now
     safe_msg = str(message)[:MAX_PURGE_STATUS_LENGTH]
+
+    # Update new explicit status and message fields
+    history_layer.status_message = safe_msg
+
     if success:
+        history_layer.status = SpatialMonitorHistory.Status.SUCCESS
         history_layer.purge_retry_count = 0
-        history_layer.purge_status = f"Success: {safe_msg}"
         # sync() updates synced_at and layer.last_updated and persists the model
         history_layer.sync()
     else:
+        history_layer.status = SpatialMonitorHistory.Status.FAILED
         history_layer.purge_retry_count = (history_layer.purge_retry_count or 0) + 1
-        history_layer.purge_status = f"Error: {safe_msg}"
         history_layer.save()
 
 
@@ -101,6 +105,11 @@ def get_image_hash(image):
 
 def publish_layer_update(history_layer: SpatialMonitorHistory):
     logger.info(f"Starting Publish Layer Update for layer '{history_layer.layer.name}' (ID: {history_layer.layer.id})")
+    
+    # Set status to PROCESSING at the start of the operation
+    history_layer.status = SpatialMonitorHistory.Status.PROCESSING
+    history_layer.save(update_fields=['status'])
+
     all_success = True
     results = []
     try:

@@ -21,8 +21,8 @@ class Command(BaseCommand):
 
         logger.info("Starting process_purge_retries_command")
         candidates = SpatialMonitorHistory.objects.filter(
-            purge_retry_count__lt=retry_limit,
-            synced_at__isnull=True  # Only process records that haven't been synced yet
+            status__in=[SpatialMonitorHistory.Status.PENDING, SpatialMonitorHistory.Status.FAILED],
+            purge_retry_count__lt=retry_limit
         )
         logger.info(f"Found {candidates.count()} candidates for purge retry")
 

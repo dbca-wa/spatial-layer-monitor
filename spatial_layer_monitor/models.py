@@ -93,6 +93,7 @@ class SpatialMonitorHistory(models.Model):
         return format_html('<a href="%s" target="_blank"> <img src="%s" width="150" height="150" /></a>' % (self.image.url, self.image.url))
 
     def sync(self):
+        self.status = self.Status.SUCCESS
         self.synced_at = timezone.now()
         self.layer.last_updated = timezone.now()
         self.layer.save()

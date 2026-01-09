@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Django",
+            "name": "Spatial Layer Monitor",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -18,7 +18,7 @@
             "autoStartBrowser": false,
         },
         {
-            "name": "Django: process_spatial_layers_changes",
+            "name": "process_spatial_layers_changes",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
@@ -32,13 +32,44 @@
             }
         },
         {
-            "name": "Django: process_purge_retries",
+            "name": "process_purge_retries",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "python": "${workspaceFolder}/venv/bin/python",
             "args": [
                 "process_purge_retries_command"
+            ],
+            "django": true,
+            "autoReload": {
+                "enable": true
+            }
+        },
+        {
+            "name": "delete_old_history (dry-run)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "python": "${workspaceFolder}/venv/bin/python",
+            "args": [
+                "delete_old_history_command",
+                "--days",
+                "90",
+                "--dry-run"
+            ],
+            "django": true,
+            "autoReload": {
+                "enable": true
+            }
+        },
+        {
+            "name": "delete_old_history",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "python": "${workspaceFolder}/venv/bin/python",
+            "args": [
+                "delete_old_history_command"
             ],
             "django": true,
             "autoReload": {

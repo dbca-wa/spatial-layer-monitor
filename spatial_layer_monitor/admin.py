@@ -6,9 +6,9 @@ from .models import SpatialMonitor, SpatialMonitorHistory, SpatialQueue, Request
 class SpatialMonitorHistoryInline(admin.TabularInline):
     model = SpatialMonitorHistory
     extra = 0
-    fields = ('hash', 'created_at', 'synced_at', 'image_tag', 'purge_retry_count', 'purge_status', 'last_purge_attempt_at')
+    fields = ('hash', 'created_at', 'synced_at', 'status', 'status_message', 'purge_retry_count', 'last_purge_attempt_at', 'image_tag')
     ordering = ('-id',)
-    readonly_fields = ('hash', 'created_at', 'synced_at', 'purge_status', 'image_tag', 'last_purge_attempt_at',)
+    readonly_fields = ('hash', 'created_at', 'synced_at', 'status', 'status_message', 'image_tag', 'last_purge_attempt_at',)
 
     def get_queryset(self, request):
         """
@@ -24,27 +24,6 @@ class SpatialMonitorHistoryInline(admin.TabularInline):
         return qs
 
 
-class PurgeStatusFilter(admin.SimpleListFilter):
-    title = 'purge status'
-    parameter_name = 'purge_state'
-
-    def lookups(self, request, model_admin):
-        return (
-            ('synced', 'Synced (Success)'),
-            ('failed', 'Failed (Error/Retrying)'),
-            ('pending', 'Pending (Not started)'),
-        )
-
-    def queryset(self, request, queryset):
-        if self.value() == 'synced':
-            return queryset.filter(synced_at__isnull=False)
-        if self.value() == 'failed':
-            return queryset.filter(synced_at__isnull=True, last_purge_attempt_at__isnull=False)
-        if self.value() == 'pending':
-            return queryset.filter(synced_at__isnull=True, last_purge_attempt_at__isnull=True)
-        return queryset
-
-
 @admin.register(SpatialMonitor)
 class SpatialMonitorAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'kmi_layer_name', 'url', 'last_checked', 'created_at', 'authentication')
@@ -54,9 +33,9 @@ class SpatialMonitorAdmin(admin.ModelAdmin):
 
 @admin.register(SpatialMonitorHistory)
 class SpatialMonitorHistoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'layer', 'hash', 'created_at', 'synced_at', 'purge_retry_count', 'purge_status', 'last_purge_attempt_at', 'purge_processing_at')
-    list_filter = ('created_at', 'synced_at', PurgeStatusFilter)
-    search_fields = ('id', 'layer__name','layer__kmi_layer_name' , 'hash', 'layer__url')
+    list_display = ('id', 'layer', 'hash', 'status', 'status_message', 'created_at', 'synced_at', 'purge_retry_count', 'last_purge_attempt_at', 'purge_processing_at')
+    list_filter = ('status', 'created_at', 'synced_at',)
+    search_fields = ('id', 'layer__name','layer__kmi_layer_name' , 'hash', 'layer__url', 'status_message')
     ordering = ('-id',)
     # readonly_fields = ('purge_status', 'purge_retry_count', 'last_purge_attempt_at', 'purge_processing_at')
 

@@ -77,7 +77,6 @@ class SpatialMonitorHistory(models.Model):
     status = models.IntegerField(choices=Status.choices, default=Status.PENDING, db_index=True)
     status_message = models.TextField(blank=True, null=True)
 
-    purge_status = models.TextField(blank=True, null=True)
     purge_retry_count = models.PositiveIntegerField(default=0)
     last_purge_attempt_at = models.DateTimeField(blank=True, null=True)
     # Timestamp set when a background worker has acquired a processing lock for this record.

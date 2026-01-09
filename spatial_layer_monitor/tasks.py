@@ -36,13 +36,11 @@ def _save_purge_result(history_layer, success: bool, message: str):
     if success:
         history_layer.status = SpatialMonitorHistory.Status.SUCCESS
         history_layer.purge_retry_count = 0
-        history_layer.purge_status = f"Success: {safe_msg}"
         # sync() updates synced_at and layer.last_updated and persists the model
         history_layer.sync()
     else:
         history_layer.status = SpatialMonitorHistory.Status.FAILED
         history_layer.purge_retry_count = (history_layer.purge_retry_count or 0) + 1
-        history_layer.purge_status = f"Error: {safe_msg}"
         history_layer.save()
 
 

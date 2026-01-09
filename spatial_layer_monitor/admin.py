@@ -8,7 +8,7 @@ class SpatialMonitorHistoryInline(admin.TabularInline):
     extra = 0
     fields = ('hash', 'created_at', 'synced_at', 'image_tag', 'purge_retry_count', 'purge_status', 'last_purge_attempt_at')
     ordering = ('-id',)
-    readonly_fields = ('created_at', 'image_tag',)
+    readonly_fields = ('hash', 'created_at', 'synced_at', 'purge_status', 'image_tag', 'last_purge_attempt_at',)
 
     def get_queryset(self, request):
         """

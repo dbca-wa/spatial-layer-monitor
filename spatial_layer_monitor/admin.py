@@ -23,6 +23,28 @@ class SpatialMonitorHistoryInline(admin.TabularInline):
             qs = qs.order_by(*ordering)
         return qs
 
+
+class PurgeStatusFilter(admin.SimpleListFilter):
+    title = 'purge status'
+    parameter_name = 'purge_state'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('synced', 'Synced (Success)'),
+            ('failed', 'Failed (Error/Retrying)'),
+            ('pending', 'Pending (Not started)'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'synced':
+            return queryset.filter(synced_at__isnull=False)
+        if self.value() == 'failed':
+            return queryset.filter(synced_at__isnull=True, last_purge_attempt_at__isnull=False)
+        if self.value() == 'pending':
+            return queryset.filter(synced_at__isnull=True, last_purge_attempt_at__isnull=True)
+        return queryset
+
+
 @admin.register(SpatialMonitor)
 class SpatialMonitorAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'kmi_layer_name', 'url', 'last_checked', 'created_at', 'authentication')
@@ -33,7 +55,7 @@ class SpatialMonitorAdmin(admin.ModelAdmin):
 @admin.register(SpatialMonitorHistory)
 class SpatialMonitorHistoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'layer', 'hash', 'created_at', 'synced_at', 'purge_retry_count', 'purge_status', 'last_purge_attempt_at', 'purge_processing_at')
-    list_filter = ('created_at', 'synced_at')
+    list_filter = ('created_at', 'synced_at', PurgeStatusFilter)
     search_fields = ('id', 'layer__name','layer__kmi_layer_name' , 'hash', 'layer__url')
     ordering = ('-id',)
     # readonly_fields = ('purge_status', 'purge_retry_count', 'last_purge_attempt_at', 'purge_processing_at')

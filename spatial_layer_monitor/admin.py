@@ -37,7 +37,8 @@ class SpatialMonitorHistoryAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at', 'synced_at',)
     search_fields = ('id', 'layer__name','layer__kmi_layer_name' , 'hash', 'layer__url', 'status_message')
     ordering = ('-id',)
-    # readonly_fields = ('purge_status', 'purge_retry_count', 'last_purge_attempt_at', 'purge_processing_at')
+    readonly_fields = ('layer', 'hash', 'status', 'status_message', 'created_at', 'synced_at', 'last_purge_attempt_at', 'purge_processing_at', 'image_tag')
+    fields = ('layer', 'hash', 'status', 'status_message', 'created_at', 'synced_at', 'purge_retry_count', 'last_purge_attempt_at', 'purge_processing_at', 'image_tag')
 
 
 @admin.register(RequestAuthentication)

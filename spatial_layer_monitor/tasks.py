@@ -58,9 +58,9 @@ def check_layer(layer: SpatialMonitor):
     new_hash, image, error = fetch_current_image_hash(url, auth=layer.get_authentication())
 
     if error:
-        layer.description = error
+        layer.description = f"Check failed at {timezone.now()}: {error}"
         layer.save()
-        logger.error(f"Error fetching new hash for layer '{layer.name}' (ID: {layer.id}) from {url}. Error: {error}")
+        logger.error(f"Layer '{layer.name}' (ID: {layer.id}): Failed to fetch hash. URL: {url}, Error: {error}")
         return 
     
     if new_hash and new_hash != current_hash:
@@ -129,25 +129,32 @@ def publish_layer_update(history_layer: SpatialMonitorHistory):
                 return False, msg
 
             for g in gs:
+                gs_info = f"{g.name} ({g.endpoint_url})" if g.name else g.endpoint_url
                 auhentication = HTTPBasicAuth(g.username, g.password)
-                url = g.endpoint_url + '/geoserver/gwc/rest/masstruncate'
+                url = g.endpoint_url.rstrip('/') + '/geoserver/gwc/rest/masstruncate'
                 data = f"<truncateLayer><layerName>{history_layer.layer.kmi_layer_name}</layerName></truncateLayer>"
 
-                logger.info(f"Sending purge request to GeoServer: {url}")
+                logger.info(f"Sending purge request to GeoServer: {gs_info}")
                 try:
-                    response = requests.post(url=url, auth=auhentication, data=data, headers={'content-type': 'text/xml'})
+                    # Added timeout to avoid hanging processes
+                    response = requests.post(url=url, auth=auhentication, data=data, headers={'content-type': 'text/xml'}, timeout=30)
                     if response.status_code == 200:
-                        msg = f"Success: {g.endpoint_url} -> {response.status_code}"
-                        logger.info(msg)
+                        msg = f"OK: {gs_info}"
+                        logger.info(f"Successfully purged cache on {gs_info}")
                         results.append(msg)
                     else:
-                        logger.error(f"Failed purge request to {g.endpoint_url}. Status: {response.status_code}. Content: {response.content}")
-                        msg = f"Error: {g.endpoint_url} -> {response.status_code}"
+                        logger.error(f"Failed purge request to {gs_info}. Status: {response.status_code}. Content: {response.content}")
+                        msg = f"Fail: {gs_info} (Status: {response.status_code})"
                         results.append(msg)
                         all_success = False
+                except requests.exceptions.Timeout:
+                    logger.error(f"Timeout during purge request to {gs_info}")
+                    msg = f"Timeout: {gs_info}"
+                    results.append(msg)
+                    all_success = False
                 except Exception as e:
-                    logger.error(f"Exception during purge request to {g.endpoint_url}: {e}")
-                    msg = f"Exception: {g.endpoint_url} -> {e}"
+                    logger.error(f"Exception during purge request to {gs_info}: {e}")
+                    msg = f"Error: {gs_info} ({type(e).__name__})"
                     results.append(msg)
                     all_success = False
             

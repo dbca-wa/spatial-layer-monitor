@@ -49,10 +49,10 @@ class Command(BaseCommand):
                 continue  # Lock not acquired
 
             try:
-                logger.info(f"Retrying purge for history id={history.pk} (retry={history.purge_retry_count})")
+                logger.info(f"Retrying purge for history id={history.pk} [Layer: {history.layer.name}] (retry count={history.purge_retry_count})")
                 publish_layer_update(history)
             except Exception as e:
-                logger.error(f"Error during purge for id={history.pk}: {e}")
+                logger.error(f"Error during purge for history id={history.pk} [Layer: {history.layer.name}]: {e}")
             finally:
                 # Release lock
                 SpatialMonitorHistory.objects.filter(pk=history.pk).update(purge_processing_at=None)

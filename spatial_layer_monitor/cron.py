@@ -19,3 +19,13 @@ class ProcessPurgeRetriesCronJob(CronJobBase):
 
     def do(self):
         call_command('process_purge_retries_command')
+
+class DeleteOldHistoryCronJob(CronJobBase):
+    """Cron job to delete spatial layer history records older than 90 days.
+    Runs daily at 10:00 AM.
+    """
+    schedule = Schedule(run_at_times=['10:00'])
+    code = 'spatial_layer_monitor.delete_old_history'
+
+    def do(self):
+        call_command('delete_old_history_command')

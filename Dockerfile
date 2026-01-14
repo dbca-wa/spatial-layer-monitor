@@ -32,11 +32,9 @@ RUN apt-get clean && \
     ssh
 
 # Install newer gdal version that is secure
-RUN add-apt-repository ppa:ubuntugis/ubuntugis-unstable && \
-    apt-get update && \
-    apt-get install --no-install-recommends -y \
-    gdal-bin \
-    python3-gdal
+# RUN add-apt-repository ppa:ubuntugis/ubuntugis-unstable 
+# RUN apt-get update
+RUN apt-get install --no-install-recommends -y gdal-bin python3-gdal
 
 RUN ln -s /usr/bin/python3 /usr/bin/python 
 

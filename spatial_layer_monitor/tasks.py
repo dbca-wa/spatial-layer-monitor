@@ -22,7 +22,7 @@ MAX_PURGE_STATUS_LENGTH = 1024
 def _save_purge_result(history_layer, success: bool, message: str):
     """Save purge attempt metadata and status on the history layer.
 
-    On success reset retry count and call `sync()` to set synced_at and update parent layer.
+    On success call `sync()` to set synced_at and update parent layer. Retry count is preserved.
     On failure increment retry count and save an error message.
     Messages are truncated to `MAX_PURGE_STATUS_LENGTH`.
     """
@@ -35,7 +35,7 @@ def _save_purge_result(history_layer, success: bool, message: str):
 
     if success:
         history_layer.status = SpatialMonitorHistory.Status.SUCCESS
-        history_layer.purge_retry_count = 0
+        # Preserve retry count to track how many failures occurred before success
         # sync() updates synced_at and layer.last_updated and persists the model
         history_layer.sync()
     else:

@@ -36,8 +36,6 @@ RUN apt-get clean && \
 # RUN apt-get update
 RUN apt-get install --no-install-recommends -y gdal-bin python3-gdal
 
-RUN ln -s /usr/bin/python3 /usr/bin/python 
-
 RUN groupadd -g 5000 oim 
 RUN useradd -g 5000 -u 5000 oim -s /bin/bash -d /app
 RUN mkdir /app 

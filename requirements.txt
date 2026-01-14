@@ -41,7 +41,7 @@ wheel==0.42.0
 oauthlib==3.2.2
 requests==2.32.4
 anyio>=4.4.0
-setuptools==80.7.1
+setuptools==80.9.0
 
 # Field encryption
 django-cryptography-5==2.0.3

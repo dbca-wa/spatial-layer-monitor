@@ -34,14 +34,14 @@ owslib==0.29.2
 numpy==2.0.1
 git+https://github.com/dbca-wa/appmonitor_client.git#egg=appmonitor_client
 cryptography>=42.0.7
-pillow==10.4.0
+pillow==12.1.0
 pyjwt~=2.10.1
 urllib3~=2.6.0
 wheel==0.42.0
 oauthlib==3.2.2
 requests==2.32.4
 anyio>=4.4.0
-setuptools==80.7.1
+setuptools==80.9.0
 
 # Field encryption
 django-cryptography-5==2.0.3

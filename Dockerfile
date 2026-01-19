@@ -1,5 +1,5 @@
 # Prepare the base environment.
-FROM ubuntu:24.04 AS builder_base_spatial_layer_monitor
+FROM ghcr.io/dbca-wa/docker-apps-dev:ubuntu_2510_base_python AS builder_base_spatial_layer_monitor
 
 LABEL maintainer="asi@dbca.wa.gov.au"
 LABEL org.opencontainers.image.source="https://github.com/dbca-wa/spatial-layer-monitor"
@@ -24,53 +24,22 @@ RUN apt-get clean && \
     apt-get install --no-install-recommends -y \
     binutils \
     build-essential \
-    cron \
-    gcc \
-    git \
-    htop \
     iputils-ping \
     libgdal-dev \
-    libmagic-dev \
-    libpq-dev \
-    libproj-dev \
-    libreoffice \
-    mtr  \
-    p7zip-full \
-    patch \
-    postgresql-client \
-    postgresql-client \
-    python3 \
-    python3-azure \
-    python3-dev \
+    p7zip-full \ 
     python3-gunicorn \
-    python3-pip \
-    python3-setuptools \
-    software-properties-common \
-    sqlite3 \
-    ssh \
-    tzdata \
-    vim \
-    virtualenv \
-    wget
+    software-properties-common \    
+    ssh
 
 # Install newer gdal version that is secure
-RUN add-apt-repository ppa:ubuntugis/ubuntugis-unstable && \
-    apt-get update && \
-    apt-get install --no-install-recommends -y \
-    gdal-bin \
-    python3-gdal
-
-RUN ln -s /usr/bin/python3 /usr/bin/python 
+# RUN add-apt-repository ppa:ubuntugis/ubuntugis-unstable 
+# RUN apt-get update
+RUN apt-get install --no-install-recommends -y gdal-bin python3-gdal
 
 RUN groupadd -g 5000 oim 
 RUN useradd -g 5000 -u 5000 oim -s /bin/bash -d /app
 RUN mkdir /app 
 RUN chown -R oim.oim /app 
-
-# Default Scripts
-RUN wget https://raw.githubusercontent.com/dbca-wa/wagov_utils/main/wagov_utils/bin/default_script_installer.sh -O /tmp/default_script_installer.sh
-RUN chmod 755 /tmp/default_script_installer.sh
-RUN /tmp/default_script_installer.sh
 
 RUN apt-get install --no-install-recommends -y python3-pil
 

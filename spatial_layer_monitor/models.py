@@ -41,6 +41,7 @@ class SpatialMonitor(models.Model):
 
     last_checked = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
 
     authentication = models.ForeignKey(RequestAuthentication, on_delete=models.CASCADE, blank=True, null=True)
 

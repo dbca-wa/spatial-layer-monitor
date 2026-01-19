@@ -26,8 +26,8 @@ class SpatialMonitorHistoryInline(admin.TabularInline):
 
 @admin.register(SpatialMonitor)
 class SpatialMonitorAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'kmi_layer_name', 'url', 'last_checked', 'created_at', 'authentication')
-    list_filter = ('last_checked', 'created_at', 'authentication')
+    list_display = ('id', 'name', 'kmi_layer_name', 'url', 'active', 'last_checked', 'created_at', 'authentication')
+    list_filter = ('active', 'last_checked', 'created_at', 'authentication')
     search_fields = ('name', 'kmi_layer_name', 'url')
     inlines = [SpatialMonitorHistoryInline]
 

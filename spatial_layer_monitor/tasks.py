@@ -45,7 +45,7 @@ def _save_purge_result(history_layer, success: bool, message: str):
 
 
 def run_check_all_layers():
-    layers = SpatialMonitor.objects.all().prefetch_related('hashes')
+    layers = SpatialMonitor.objects.filter(active=True).prefetch_related('hashes')
     for layer in layers:
         check_layer(layer)
 

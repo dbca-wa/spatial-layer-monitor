@@ -22,7 +22,7 @@ class MonitorProcessor():
         seen_datetime = datetime.strftime(current_datetime, '%Y-%m-%d %H:%M:%S')
         logger.info(f"Monitoring Layers {seen_datetime}")
         try:
-            layers = SpatialMonitor.objects.all().prefetch_related('hashes')
+            layers = SpatialMonitor.objects.filter(active=True).prefetch_related('hashes')
             logger.info(f"Layers to be checked on: {layers.count()}")
             for layer in layers:
                 check_layer(layer)

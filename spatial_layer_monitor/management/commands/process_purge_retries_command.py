@@ -21,6 +21,7 @@ class Command(BaseCommand):
 
         logger.info("Starting process_purge_retries_command")
         candidates = SpatialMonitorHistory.objects.filter(
+            layer__active=True,
             status__in=[SpatialMonitorHistory.Status.PENDING, SpatialMonitorHistory.Status.FAILED],
             purge_retry_count__lt=retry_limit
         )

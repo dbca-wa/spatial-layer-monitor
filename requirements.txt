@@ -1,5 +1,5 @@
 # backend processing script requirements.
-geopandas==1.0.1
+geopandas==1.1.2
 SQLAlchemy==2.0.36
 postmarker==1.0
 azure-storage-blob==12.24.0

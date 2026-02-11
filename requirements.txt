@@ -34,7 +34,7 @@ owslib==0.29.2
 numpy==2.0.1
 git+https://github.com/dbca-wa/appmonitor_client.git#egg=appmonitor_client
 cryptography>=42.0.7
-pillow==12.1.0
+pillow==12.1.1
 pyjwt~=2.10.1
 urllib3~=2.6.0
 wheel==0.42.0

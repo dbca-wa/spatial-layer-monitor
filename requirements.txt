@@ -1,14 +1,14 @@
 # backend processing script requirements.
-geopandas==1.0.1
+geopandas>=1.1.2
 SQLAlchemy==2.0.36
 postmarker==1.0
 azure-storage-blob==12.24.0
-GDAL==3.9.3
+GDAL==3.10.3
 pyinotify-elephant-fork==0.0.1
 psycopg2==2.9.10
 
 # Django Application Requirements
-Django~=5.2.0
+Django~=5.2.11
 gevent==25.4.2
 django-extensions>=3.2.3
 djangorestframework>=3.14.0
@@ -33,11 +33,11 @@ lxml>=4.9.2
 owslib==0.29.2
 numpy==2.0.1
 git+https://github.com/dbca-wa/appmonitor_client.git#egg=appmonitor_client
-cryptography>=42.0.7
-pillow==12.1.0
+cryptography>=46.0.5
+pillow>=12.1.1
 pyjwt~=2.10.1
 urllib3~=2.6.0
-wheel==0.42.0
+wheel>=0.46.3
 oauthlib==3.2.2
 requests==2.32.4
 anyio>=4.4.0

@@ -29,17 +29,17 @@ django-reversion-rest-framework>=1.1.2
 git+https://github.com/dbca-wa/django-cron#egg=django-cron
 py7zr>=0.20.2
 rarfile>=4.0
-lxml>=4.9.2
+lxml>=6.1.1
 owslib==0.29.2
 numpy==2.0.1
 git+https://github.com/dbca-wa/appmonitor_client.git#egg=appmonitor_client
-cryptography>=46.0.5
-pillow>=12.1.1
+cryptography>=48.0.0
+pillow>=12.2.0
 pyjwt~=2.10.1
 urllib3~=2.6.0
 wheel>=0.46.3
 oauthlib==3.2.2
-requests==2.32.4
+requests>=2.33.1
 anyio>=4.4.0
 setuptools==82.0.1
 

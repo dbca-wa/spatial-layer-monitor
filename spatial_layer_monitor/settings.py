@@ -270,6 +270,7 @@ CRON_CLASSES = [
     'appmonitor_client.cron.CronJobAppMonitorClient',
     'spatial_layer_monitor.cron.ProcessSpatialLayersChangesCronJob',
     'spatial_layer_monitor.cron.ProcessPurgeRetriesCronJob',
+    'spatial_layer_monitor.cron.DeleteOldHistoryCronJob',
 ]
 MANAGEMENT_COMMANDS_PAGE_ENABLED = decouple.config('MANAGEMENT_COMMANDS_PAGE_ENABLED', default=False)
 

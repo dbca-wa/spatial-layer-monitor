@@ -28,6 +28,7 @@ RUN apt-get clean && \
     libgdal-dev \
     p7zip-full \ 
     python3-gunicorn \
+    python3-venv \
     software-properties-common \    
     ssh
 

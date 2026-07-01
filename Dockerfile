@@ -16,6 +16,8 @@ RUN mv /etc/apt/sourcesau.list /etc/apt/sources.list
 
 # Key for Build purposes only
 ENV FIELD_ENCRYPTION_KEY="Mv12YKHFm4WgTXMqvnoUUMZPpxx1ZnlFkfGzwactcdM="
+ENV VIRTUAL_ENV=/app/venv
+ENV PATH=$VIRTUAL_ENV/bin:$PATH
 
 # Key for Build purposes only
 RUN apt-get clean && \
@@ -28,6 +30,7 @@ RUN apt-get clean && \
     libgdal-dev \
     p7zip-full \ 
     python3-gunicorn \
+    python3-venv \
     software-properties-common \    
     ssh
 
@@ -53,7 +56,7 @@ RUN chmod 755 /startup.sh
 FROM builder_base_spatial_layer_monitor AS python_libs_spatial_layer_monitor
 WORKDIR /app
 USER oim 
-RUN virtualenv /app/venv
+RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH=/app/venv/bin:$PATH
 RUN git config --global --add safe.directory /app
 

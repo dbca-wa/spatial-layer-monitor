@@ -4,6 +4,7 @@
 
 trigger:
 - main
+- patch_*
 
 resources:
 - repo: self
@@ -15,7 +16,7 @@ variables:
 
 stages:
 - stage: Build
-  condition: and(succeeded(), eq(variables.isMain, 'true'))
+  condition: succeeded()
   displayName: Build image
   jobs:
   - job: Build

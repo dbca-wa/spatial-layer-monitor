@@ -28,28 +28,20 @@ ENV PATH=$VIRTUAL_ENV/bin:$PATH
 RUN apt-get clean && \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y \
-    binutils \
-    build-essential \
-    iputils-ping \
-    libgdal-dev \
-    p7zip-full \ 
-    python3-gunicorn \
-    python3-venv \
-    software-properties-common \    
-    ssh
+    apt-get install --no-install-recommends -y \    
+    p7zip-full     
 
 # Install newer gdal version that is secure
 # RUN add-apt-repository ppa:ubuntugis/ubuntugis-unstable 
 # RUN apt-get update
-RUN apt-get install --no-install-recommends -y gdal-bin python3-gdal
+# RUN apt-get install --no-install-recommends -y gdal-bin python3-gdal
 
 RUN groupadd -g 5000 oim 
 RUN useradd -g 5000 -u 5000 oim -s /bin/bash -d /app
 RUN mkdir /app 
 RUN chown -R oim.oim /app 
 
-RUN apt-get install --no-install-recommends -y python3-pil
+# RUN apt-get install --no-install-recommends -y python3-pil
 
 ENV TZ=Australia/Perth
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -74,17 +66,17 @@ RUN whoami
 # In newer Ubuntu 26.04 / Python 3.14+ environments, the build system often fails 
 # to automatically locate 'gdal.h'. These environment variables ensure the Python 
 # wrapper can find the underlying C++ headers required for compilation.
-ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
-ENV C_INCLUDE_PATH=/usr/include/gdal
+# ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+# ENV C_INCLUDE_PATH=/usr/include/gdal
 
 # 2. Synchronize and pre-install the Python GDAL package with the system library version.
 # GDAL's Python bindings are extremely sensitive to version mismatches with the 
 # system's 'libgdal'. By detecting the version via 'gdal-config' and installing it 
 # separately, we avoid the "Failed to build GDAL" errors that occur when pip tries 
 # to compile an incompatible version from 'requirements.txt'.
-RUN export GDAL_VERSION=$(gdal-config --version) && \
-    pip install --upgrade pip setuptools wheel && \
-    pip install "GDAL==${GDAL_VERSION}.*"
+# RUN export GDAL_VERSION=$(gdal-config --version) && \
+#     pip install --upgrade pip setuptools wheel && \
+#     pip install "GDAL==${GDAL_VERSION}.*"
 # --- GDAL SETUP END ---
 
 RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt 
@@ -100,6 +92,13 @@ COPY timezone /etc/timezone
 COPY gunicorn.ini ./
 
 COPY .git ./.git
+
+# Cleanup
+USER root
+RUN wget https://raw.githubusercontent.com/dbca-wa/wagov_utils/refs/heads/main/wagov_utils/bin/package_cleanup_2604.sh -O /tmp/package_cleanup_2604.sh
+RUN chmod 755 /tmp/package_cleanup_2604.sh
+RUN /tmp/package_cleanup_2604.sh
+USER oim
 
 EXPOSE 8080
 HEALTHCHECK --interval=1m --timeout=5s --start-period=10s --retries=3 CMD ["wget", "-q", "-O", "-", "http://localhost:8080/"]

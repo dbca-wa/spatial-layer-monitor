@@ -15,8 +15,8 @@ ENV PRODUCTION_EMAIL=True
 ENV SECRET_KEY="ThisisNotRealKey"
 SHELL ["/bin/bash", "-c"]
 # Use Australian Mirrors
-RUN sed 's/archive.ubuntu.com/au.archive.ubuntu.com/g' /etc/apt/sources.list > /etc/apt/sourcesau.list
-RUN mv /etc/apt/sourcesau.list /etc/apt/sources.list
+# RUN sed 's/archive.ubuntu.com/au.archive.ubuntu.com/g' /etc/apt/sources.list > /etc/apt/sourcesau.list
+# RUN mv /etc/apt/sourcesau.list /etc/apt/sources.list
 # Use Australian Mirrors
 
 # Key for Build purposes only
@@ -29,7 +29,7 @@ RUN apt-get clean && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install --no-install-recommends -y \    
-    p7zip-full     
+    p7zip-full    
 
 # Install newer gdal version that is secure
 # RUN add-apt-repository ppa:ubuntugis/ubuntugis-unstable 
@@ -53,7 +53,7 @@ RUN chmod 755 /startup.sh
 FROM builder_base_spatial_layer_monitor AS python_libs_spatial_layer_monitor
 WORKDIR /app
 USER oim 
-RUN python3 -m venv $VIRTUAL_ENV
+RUN python -m venv $VIRTUAL_ENV
 ENV PATH=/app/venv/bin:$PATH
 RUN git config --global --add safe.directory /app
 
@@ -79,7 +79,7 @@ RUN whoami
 #     pip install "GDAL==${GDAL_VERSION}.*"
 # --- GDAL SETUP END ---
 
-RUN /app/venv/bin/pip install --no-cache-dir -r requirements.txt 
+RUN uv pip install --no-cache-dir -r requirements.txt 
 
 COPY --chown=oim:oim spatial_layer_monitor spatial_layer_monitor
 #COPY --chown=oim:oim thermalimageprocessing thermalimageprocessing

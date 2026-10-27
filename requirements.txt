@@ -35,10 +35,10 @@ numpy==2.0.1
 git+https://github.com/dbca-wa/appmonitor_client.git#egg=appmonitor_client
 cryptography>=48.0.0
 pillow>=13.0.0
-pyjwt~=2.10.1
-urllib3~=2.7.0
+pyjwt~=2.15.0
+urllib3~=2.8.0
 wheel>=0.46.3
-oauthlib==3.2.2
+oauthlib==4.0.0
 requests>=2.33.1
 anyio>=4.4.0
 setuptools==84.2.0

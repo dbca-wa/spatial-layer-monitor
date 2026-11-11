@@ -20,6 +20,7 @@ def mock_kmi_service(request):
     
 
 @api_view(['POST'])
+@permission_classes([IsInOfficersGroup])
 def run_batch_import(request):
     x = threading.Thread(target=run_check_all_layers)
     x.run()
